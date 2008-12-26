@@ -4,7 +4,7 @@ Pack := Object clone do(
         bytes := Sequence clone
         argIndex := 1
         format foreach(c,
-            if (c == "s" at(0),
+            if (c == "p" at(0),
                 bytes appendSeq(call evalArgAt(argIndex))
                 bytes append(0)
                 argIndex = argIndex + 1
@@ -20,7 +20,7 @@ Pack := Object clone do(
         byteIndex := 0
 
         format foreach(c,
-            if (c == "s" at(0),
+            if (c == "p" at(0),
                 endIndex := bytes findSeq("\0", byteIndex)
                 result append(bytes exSlice(byteIndex, endIndex))
                 byteIndex = endIndex + 1
