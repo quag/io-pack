@@ -14,7 +14,19 @@ Pack := Object clone do(
         bytes asString
     )
 
-    unpack := method(format,
-        list("test")
+    unpack := method(format, bytes,
+        result := list()
+
+        byteIndex := 0
+
+        format foreach(c,
+            if (c == "s" at(0),
+                endIndex := bytes findSeq("\0", byteIndex)
+                result append(bytes exSlice(byteIndex, endIndex))
+                byteIndex = endIndex + 1
+            )
+        )
+
+        result
     )
 )
