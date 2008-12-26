@@ -2,12 +2,12 @@ Pack := Object clone do(
     
     pack := method(format,
         bytes := Sequence clone
-        i := 1
+        argIndex := 1
         format foreach(c,
             if (c == "s" at(0),
-                bytes appendSeq(call evalArgAt(i))
+                bytes appendSeq(call evalArgAt(argIndex))
                 bytes append(0)
-                i = i + 1
+                argIndex = argIndex + 1
             )
         )
 
