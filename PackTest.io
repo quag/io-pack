@@ -32,5 +32,12 @@ PackTest := UnitTest clone do(
     testUnsignedByte := method(
         assertEquals("ABC", Pack pack("CCC", 65, 66, 67))
         assertEquals(255 asCharacter, Pack pack("C", 255))
+        assertEquals(255 asCharacter, Pack pack("C", -1))
+    )
+
+    testSignedByte := method(
+        assertEquals("ABC", Pack pack("ccc", 65, 66, 67))
+        assertEquals(255 asCharacter, Pack pack("c", 255))
+        assertEquals(255 asCharacter, Pack pack("c", -1))
     )
 )

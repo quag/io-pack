@@ -31,4 +31,11 @@ UnpackTest := UnitTest clone do(
         assertEquals(list(65, 66, 67), Pack unpack("CCC", "ABC"))
         assertEquals(list(255), Pack unpack("C", 255 asCharacter))
     )
+
+    testSignedByte := method(
+        assertEquals(list(65, 66, 67), Pack unpack("ccc", "ABC"))
+        assertEquals(list(-1), Pack unpack("c", 255 asCharacter))
+        assertEquals(list(127), Pack unpack("c", 127 asCharacter))
+        assertEquals(list(-128), Pack unpack("c", 128 asCharacter))
+    )
 )

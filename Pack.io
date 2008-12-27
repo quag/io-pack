@@ -28,6 +28,13 @@ Pack := Object clone do(
                 )
             )
 
+            if(instruction name == "c",
+                instruction count repeat(
+                    packer appendSignedByte(call evalArgAt(argIndex))
+                    argIndex = argIndex + 1
+                )
+            )
+
             if(instruction name == "x",
                 instruction count repeat(
                     packer appendNullByte
@@ -61,6 +68,12 @@ Pack := Object clone do(
             if(instruction name == "C",
                 instruction count repeat(
                     result append(unpacker unpackUnsignedByte)
+                )
+            )
+
+            if(instruction name == "c",
+                instruction count repeat(
+                    result append(unpacker unpackSignedByte)
                 )
             )
 
@@ -101,6 +114,10 @@ Pack Packer := Object clone do(
 
     appendUnsignedByte := method(byte,
         bytes append(byte)
+    )
+
+    appendSignedByte := method(byte,
+        appendUnsignedByte(byte)
     )
 )
 
@@ -146,6 +163,15 @@ Pack Unpacker := Object clone do(
         number := bytes at(byteIndex)
         byteIndex = byteIndex + 1
         number
+    )
+
+    unpackSignedByte := method(
+        number := unpackUnsignedByte
+        if(number > 0x7F,
+            number - 0x100
+        ,
+            number
+        )
     )
 )
 
