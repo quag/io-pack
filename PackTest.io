@@ -28,4 +28,9 @@ PackTest := UnitTest clone do(
         assertEquals("a\0", Pack pack("a2", "a"))
         assertEquals("a\0\0", Pack pack("a3", "a"))
     )
+
+    testUnsignedByte := method(
+        assertEquals("ABC", Pack pack("CCC", 65, 66, 67))
+        assertEquals(255 asCharacter, Pack pack("C", 255))
+    )
 )

@@ -26,4 +26,9 @@ UnpackTest := UnitTest clone do(
         assertEquals(list("a"), Pack unpack("a3", "a\0\0"))
         assertEquals(list("a", "b", "c"), Pack unpack("a3a3a3", "a\0\0b\0\0c\0\0"))
     )
+
+    testUnsignedByte := method(
+        assertEquals(list(65, 66, 67), Pack unpack("CCC", "ABC"))
+        assertEquals(list(255), Pack unpack("C", 255 asCharacter))
+    )
 )

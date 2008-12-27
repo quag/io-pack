@@ -11,14 +11,21 @@ Pack := Object clone do(
                 )
             )
 
-            if (instruction name == "A",
+            if(instruction name == "A",
                 packer appendSpacePaddedString(call evalArgAt(argIndex), instruction countOrOne)
                 argIndex = argIndex + 1
             )
 
-            if (instruction name == "a",
+            if(instruction name == "a",
                 packer appendNullPaddedString(call evalArgAt(argIndex), instruction countOrOne)
                 argIndex = argIndex + 1
+            )
+
+            if(instruction name == "C",
+                instruction countOrOne repeat(
+                    packer appendUnsignedByte(call evalArgAt(argIndex))
+                    argIndex = argIndex + 1
+                )
             )
 
             if(instruction name == "x",
@@ -43,12 +50,18 @@ Pack := Object clone do(
                 )
             )
 
-            if (instruction name == "A",
+            if(instruction name == "A",
                 result append(unpacker unpackSpacePaddedString(instruction countOrOne))
             )
 
-            if (instruction name == "a",
+            if(instruction name == "a",
                 result append(unpacker unpackNullPaddedString(instruction countOrOne))
+            )
+
+            if(instruction name == "C",
+                instruction countOrOne repeat(
+                    result append(unpacker unpackUnsignedByte)
+                )
             )
 
             if(instruction name == "x",
@@ -84,6 +97,10 @@ Pack Packer := Object clone do(
 
     appendNullByte := method(
         bytes append(0)
+    )
+
+    appendUnsignedByte := method(byte,
+        bytes append(byte)
     )
 )
 
@@ -121,7 +138,14 @@ Pack Unpacker := Object clone do(
                 break
             )
         )
+
         string
+    )
+
+    unpackUnsignedByte := method(
+        number := bytes at(byteIndex)
+        byteIndex = byteIndex + 1
+        number
     )
 )
 
