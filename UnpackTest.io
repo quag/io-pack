@@ -20,4 +20,10 @@ UnpackTest := UnitTest clone do(
         assertEquals(list("a"), Pack unpack("A3", "a  "))
         assertEquals(list("a", "b", "c"), Pack unpack("A3A3A3", "a  b  c  "))
     )
+
+    testNullPaddedString := method(
+        assertEquals(list("a"), Pack unpack("a", "a"))
+        assertEquals(list("a"), Pack unpack("a3", "a\0\0"))
+        assertEquals(list("a", "b", "c"), Pack unpack("a3a3a3", "a\0\0b\0\0c\0\0"))
+    )
 )
