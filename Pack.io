@@ -8,6 +8,9 @@ Pack := Object clone do(
                 packer appendNullTerminatedString(call evalArgAt(argIndex))
                 argIndex = argIndex + 1
             )
+            if (c == "x" at(0),
+                packer appendNullByte
+            )
         )
 
         packer bytes asString
@@ -21,6 +24,9 @@ Pack := Object clone do(
         format foreach(c,
             if (c == "p" at(0),
                 result append(unpacker unpackNullTerimatedString)
+            )
+            if (c == "x" at(0),
+                unpacker skipByte
             )
         )
 
@@ -37,6 +43,10 @@ Pack Packer := Object clone do(
 
     appendNullTerminatedString := method(string,
         bytes appendSeq(string)
+        appendNullByte
+    )
+
+    appendNullByte := method(
         bytes append(0)
     )
 )
@@ -44,6 +54,10 @@ Pack Packer := Object clone do(
 Pack Unpacker := Object clone do(
     bytes ::= nil
     byteIndex := 0
+
+    skipByte := method(
+        byteIndex = byteIndex + 1
+    )
 
     unpackNullTerimatedString := method(
         endIndex := bytes findSeq("\0", byteIndex)
