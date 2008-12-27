@@ -5,31 +5,31 @@ Pack := Object clone do(
         argIndex := 1
         Format clone parse(format) instructions foreach(instruction,
             if(instruction name == "p",
-                instruction countOrOne repeat(
+                instruction count repeat(
                     packer appendNullTerminatedString(call evalArgAt(argIndex))
                     argIndex = argIndex + 1
                 )
             )
 
             if(instruction name == "A",
-                packer appendSpacePaddedString(call evalArgAt(argIndex), instruction countOrOne)
+                packer appendSpacePaddedString(call evalArgAt(argIndex), instruction count)
                 argIndex = argIndex + 1
             )
 
             if(instruction name == "a",
-                packer appendNullPaddedString(call evalArgAt(argIndex), instruction countOrOne)
+                packer appendNullPaddedString(call evalArgAt(argIndex), instruction count)
                 argIndex = argIndex + 1
             )
 
             if(instruction name == "C",
-                instruction countOrOne repeat(
+                instruction count repeat(
                     packer appendUnsignedByte(call evalArgAt(argIndex))
                     argIndex = argIndex + 1
                 )
             )
 
             if(instruction name == "x",
-                instruction countOrOne repeat(
+                instruction count repeat(
                     packer appendNullByte
                 )
             )
@@ -45,27 +45,27 @@ Pack := Object clone do(
 
         Format clone parse(format) instructions foreach(instruction,
             if(instruction name == "p",
-                instruction countOrOne repeat(
+                instruction count repeat(
                     result append(unpacker unpackNullTerimatedString)
                 )
             )
 
             if(instruction name == "A",
-                result append(unpacker unpackSpacePaddedString(instruction countOrOne))
+                result append(unpacker unpackSpacePaddedString(instruction count))
             )
 
             if(instruction name == "a",
-                result append(unpacker unpackNullPaddedString(instruction countOrOne))
+                result append(unpacker unpackNullPaddedString(instruction count))
             )
 
             if(instruction name == "C",
-                instruction countOrOne repeat(
+                instruction count repeat(
                     result append(unpacker unpackUnsignedByte)
                 )
             )
 
             if(instruction name == "x",
-                instruction countOrOne repeat(
+                instruction count repeat(
                     unpacker skipByte
                 )
             )
@@ -179,15 +179,7 @@ Pack Format := Object clone do(
 
     Instruction := Object clone do(
         name ::= nil
-        count ::= nil
-
-        countOrOne := method(
-            if(count == nil,
-                1
-            ,
-                count
-            )
-        )
+        count ::= 1
 
         asString := method(
             if(count != nil,
