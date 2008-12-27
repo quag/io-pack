@@ -3,13 +3,18 @@ Pack := Object clone do(
     pack := method(format,
         packer := Packer clone
         argIndex := 1
-        format foreach(c,
-            if (c == "p" at(0),
-                packer appendNullTerminatedString(call evalArgAt(argIndex))
-                argIndex = argIndex + 1
+        Format clone parse(format) instructions foreach(instruction,
+            if(instruction name == "p",
+                instruction countOrOne repeat(
+                    packer appendNullTerminatedString(call evalArgAt(argIndex))
+                    argIndex = argIndex + 1
+                )
             )
-            if (c == "x" at(0),
-                packer appendNullByte
+
+            if(instruction name == "x",
+                instruction countOrOne repeat(
+                    packer appendNullByte
+                )
             )
         )
 
@@ -21,12 +26,17 @@ Pack := Object clone do(
 
         unpacker := Unpacker clone setBytes(bytes)
 
-        format foreach(c,
-            if (c == "p" at(0),
-                result append(unpacker unpackNullTerimatedString)
+        Format clone parse(format) instructions foreach(instruction,
+            if(instruction name == "p",
+                instruction countOrOne repeat(
+                    result append(unpacker unpackNullTerimatedString)
+                )
             )
-            if (c == "x" at(0),
-                unpacker skipByte
+
+            if(instruction name == "x",
+                instruction countOrOne repeat(
+                    unpacker skipByte
+                )
             )
         )
 
@@ -64,5 +74,55 @@ Pack Unpacker := Object clone do(
         string := bytes exSlice(byteIndex, endIndex)
         byteIndex = endIndex + 1
         string
+    )
+)
+
+Pack Format := Object clone do(
+    instructions := nil
+
+    parse := method(format,
+        instructions = list()
+        instruction := nil
+        numbers := Sequence clone
+        format foreach(c,
+            if(c isDigit,
+                numbers append(c)
+            ,
+                if(numbers size != 0,
+                    instruction setCount(numbers asNumber)
+                    numbers empty
+                )
+
+                instruction = Instruction clone setName(c asCharacter)
+                instructions append(instruction)
+            )
+
+            if(numbers size != 0,
+                instruction setCount(numbers asNumber)
+                numbers empty
+            )
+        )
+        self
+    )
+
+    Instruction := Object clone do(
+        name ::= nil
+        count ::= nil
+
+        countOrOne := method(
+            if(count == nil,
+                1
+            ,
+                count
+            )
+        )
+
+        asString := method(
+            if(count != nil,
+                name .. count
+            ,
+                name
+            )
+        )
     )
 )
