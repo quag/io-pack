@@ -11,6 +11,11 @@ Pack := Object clone do(
                 )
             )
 
+            if (instruction name == "A",
+                packer appendSpacePaddedString(call evalArgAt(argIndex), instruction countOrOne)
+                argIndex = argIndex + 1
+            )
+
             if(instruction name == "x",
                 instruction countOrOne repeat(
                     packer appendNullByte
@@ -31,6 +36,10 @@ Pack := Object clone do(
                 instruction countOrOne repeat(
                     result append(unpacker unpackNullTerimatedString)
                 )
+            )
+
+            if (instruction name == "A",
+                result append(unpacker unpackSpacePaddedString(instruction countOrOne))
             )
 
             if(instruction name == "x",
@@ -56,6 +65,10 @@ Pack Packer := Object clone do(
         appendNullByte
     )
 
+    appendSpacePaddedString := method(string, width,
+        bytes appendSeq(string alignLeft(width))
+    )
+
     appendNullByte := method(
         bytes append(0)
     )
@@ -74,6 +87,12 @@ Pack Unpacker := Object clone do(
         string := bytes exSlice(byteIndex, endIndex)
         byteIndex = endIndex + 1
         string
+    )
+
+    unpackSpacePaddedString := method(width,
+        string := bytes exSlice(byteIndex, byteIndex + width)
+        byteIndex = byteIndex + width
+        string asMutable rstrip
     )
 )
 

@@ -14,4 +14,11 @@ PackTest := UnitTest clone do(
         assertEquals("\0\0\0", Pack pack("xxx"))
         assertEquals("\0\0\0", Pack pack("x3"))
     )
+
+    testSpacePaddedString := method(
+        assertEquals("a", Pack pack("A", "a"))
+        assertEquals("a", Pack pack("A1", "a"))
+        assertEquals("a ", Pack pack("A2", "a"))
+        assertEquals("a  ", Pack pack("A3", "a"))
+    )
 )
