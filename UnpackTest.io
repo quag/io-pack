@@ -38,4 +38,11 @@ UnpackTest := UnitTest clone do(
         assertEquals(list(127), Pack unpack("c", 127 asCharacter))
         assertEquals(list(-128), Pack unpack("c", 128 asCharacter))
     )
+
+    testDecendingBits := method(
+        assertEquals(list("0110"), Pack unpack("B4", "`"))
+        assertEquals(list("01100001"), Pack unpack("B8", "a"))
+        assertEquals(list("001100110"), Pack unpack("B9", "3\0"))
+        assertEquals(list("0110000101100010"), Pack unpack("B16", "ab"))
+    )
 )

@@ -21,6 +21,11 @@ Pack := Object clone do(
                 argIndex = argIndex + 1
             )
 
+            if(instruction name == "B",
+                packer appendDecendingBitString(call evalArgAt(argIndex), instruction count)
+                argIndex = argIndex + 1
+            )
+
             if(instruction name == "C",
                 instruction count repeat(
                     packer appendUnsignedByte(call evalArgAt(argIndex))
@@ -63,6 +68,10 @@ Pack := Object clone do(
 
             if(instruction name == "a",
                 result append(unpacker unpackNullPaddedString(instruction count))
+            )
+
+            if(instruction name == "B",
+                result append(unpacker unpackDecendingBitString(instruction count))
             )
 
             if(instruction name == "C",
@@ -119,6 +128,31 @@ Pack Packer := Object clone do(
     appendSignedByte := method(byte,
         appendUnsignedByte(byte)
     )
+
+    appendDecendingBitString := method(bitString, bitCount,
+        offset := 7
+        byte := 0
+
+        bitString foreach(bitCharacter,
+            if(bitCharacter == "1" at(0),
+                byte = byte + (1 << offset)
+            )
+
+            if(bitCharacter == "1" at(0) or bitCharacter == "0" at(0),
+                offset = offset - 1
+
+                if(offset < 0,
+                    appendUnsignedByte(byte)
+                    offset = 7
+                    byte = 0
+                )
+            )
+        )
+
+        if(offset != 7,
+            appendUnsignedByte(byte)
+        )
+    )
 )
 
 Pack Unpacker := Object clone do(
@@ -172,6 +206,25 @@ Pack Unpacker := Object clone do(
         ,
             number
         )
+    )
+
+    unpackDecendingBitString := method(bitCount,
+        bitString := Sequence clone
+        
+        offset := -1
+        byte := nil
+
+        bitCount repeat(
+            if(offset < 0,
+                byte = unpackUnsignedByte
+                offset = 7
+            )
+
+            bitString appendSeq(if((byte & (1 << offset)) != 0, "1", "0"))
+            offset = offset - 1
+        )
+
+        bitString asString
     )
 )
 

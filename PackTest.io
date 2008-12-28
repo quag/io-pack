@@ -40,4 +40,11 @@ PackTest := UnitTest clone do(
         assertEquals(255 asCharacter, Pack pack("c", 255))
         assertEquals(255 asCharacter, Pack pack("c", -1))
     )
+
+    testDecendingBits := method(
+        assertEquals("`", Pack pack("B4", "0110"))
+        assertEquals("a", Pack pack("B8", "01100001"))
+        assertEquals("3\0", Pack pack("B9", "001100110"))
+        assertEquals("ab", Pack pack("B16", "0110000101100010"))
+    )
 )
