@@ -194,12 +194,13 @@ Pack Format := Object clone do(
                 instruction = Instruction clone setName(c asCharacter)
                 instructions append(instruction)
             )
-
-            if(numbers size != 0,
-                instruction setCount(numbers asNumber)
-                numbers empty
-            )
         )
+
+        if(numbers size != 0,
+            instruction setCount(numbers asNumber)
+            numbers empty
+        )
+
         self
     )
 
