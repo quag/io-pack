@@ -3,46 +3,13 @@ Pack := Object clone do(
     pack := method(format,
         packer := Packer clone
         argIndex := 1
-        Format clone parse(format) instructions foreach(instruction,
-            if(instruction name == "p",
-                instruction count repeat(
-                    packer appendNullTerminatedString(call evalArgAt(argIndex))
+
+        Format parse(format) foreach(instruction,
+            packer doMessage(
+                instruction appendMessage(
+                    value := call evalArgAt(argIndex)
                     argIndex = argIndex + 1
-                )
-            )
-
-            if(instruction name == "A",
-                packer appendSpacePaddedString(call evalArgAt(argIndex), instruction count)
-                argIndex = argIndex + 1
-            )
-
-            if(instruction name == "a",
-                packer appendNullPaddedString(call evalArgAt(argIndex), instruction count)
-                argIndex = argIndex + 1
-            )
-
-            if(instruction name == "B",
-                packer appendDecendingBitString(call evalArgAt(argIndex), instruction count)
-                argIndex = argIndex + 1
-            )
-
-            if(instruction name == "C",
-                instruction count repeat(
-                    packer appendUnsignedByte(call evalArgAt(argIndex))
-                    argIndex = argIndex + 1
-                )
-            )
-
-            if(instruction name == "c",
-                instruction count repeat(
-                    packer appendSignedByte(call evalArgAt(argIndex))
-                    argIndex = argIndex + 1
-                )
-            )
-
-            if(instruction name == "x",
-                instruction count repeat(
-                    packer appendNullByte
+                    value
                 )
             )
         )
@@ -51,49 +18,123 @@ Pack := Object clone do(
     )
 
     unpack := method(format, bytes,
-        result := list()
+        results := list()
 
         unpacker := Unpacker clone setBytes(bytes)
 
-        Format clone parse(format) instructions foreach(instruction,
-            if(instruction name == "p",
-                instruction count repeat(
-                    result append(unpacker unpackNullTerimatedString)
-                )
-            )
+        Format parse(format) foreach(instruction,
+            value := unpacker doMessage(instruction unpackMessage)
 
-            if(instruction name == "A",
-                result append(unpacker unpackSpacePaddedString(instruction count))
-            )
-
-            if(instruction name == "a",
-                result append(unpacker unpackNullPaddedString(instruction count))
-            )
-
-            if(instruction name == "B",
-                result append(unpacker unpackDecendingBitString(instruction count))
-            )
-
-            if(instruction name == "C",
-                instruction count repeat(
-                    result append(unpacker unpackUnsignedByte)
-                )
-            )
-
-            if(instruction name == "c",
-                instruction count repeat(
-                    result append(unpacker unpackSignedByte)
-                )
-            )
-
-            if(instruction name == "x",
-                instruction count repeat(
-                    unpacker skipByte
-                )
+            if(instruction hasValue,
+                results append(value)
             )
         )
 
-        result
+        results
+    )
+)
+
+Pack Format := Object clone do(
+    instructionProtos := Map clone
+
+    parse := method(format,
+        instructions := list()
+        instruction := nil
+        numbers := Sequence clone
+        format foreach(c,
+            if(c isDigit,
+                numbers append(c)
+            ,
+                if(numbers size != 0,
+                    instruction setCount(numbers asNumber)
+                    numbers empty
+                )
+
+                instruction = instructionProtos at(c asCharacter) clone
+                instructions append(instruction)
+            )
+        )
+
+        if(numbers size != 0,
+            instruction setCount(numbers asNumber)
+            numbers empty
+        )
+
+        unrollRepeats(instructions)
+    )
+
+    unrollRepeats := method(instructions,
+        unrolled := list()
+
+        instructions foreach(instruction,
+            instruction repeatCount repeat(
+                unrolled append(instruction)
+            )
+        )
+
+        unrolled
+    )
+
+    Instruction := Object clone do(
+        character ::= nil
+        count ::= 1
+        appendName ::= nil
+        unpackName ::= nil
+        usesCount ::= false
+        hasValue ::= true
+
+        repeatCount := method(
+            if(usesCount, 1, count)
+        )
+
+        appendMessage := method(
+            m := Message clone setName(appendName)
+
+            if(hasValue,
+                m appendCachedArg(call evalArgAt(0))
+            )
+
+            if(usesCount,
+                m appendCachedArg(count)
+            )
+
+            m
+        )
+
+        unpackMessage := method(
+            m := Message clone setName(unpackName)
+
+            if(usesCount,
+                m appendCachedArg(count)
+            )
+
+            m
+        )
+
+        setNames := method(baseName,
+            setAppendName("append" .. baseName)
+            setUnpackName("unpack" .. baseName)
+        )
+
+        asString := method(
+            if(count != nil,
+                character .. count
+            ,
+                character
+            )
+        )
+    )
+
+    list(
+        Instruction clone setCharacter("p") setNames("NullTerminatedString"),
+        Instruction clone setCharacter("A") setNames("SpacePaddedString") setUsesCount(true),
+        Instruction clone setCharacter("a") setNames("NullPaddedString") setUsesCount(true),
+        Instruction clone setCharacter("B") setNames("DecendingBitString") setUsesCount(true),
+        Instruction clone setCharacter("C") setNames("UnsignedByte"),
+        Instruction clone setCharacter("c") setNames("SignedByte"),
+        Instruction clone setCharacter("x") setAppendName("appendNullByte") setUnpackName("skipByte") setHasValue(false)
+    ) foreach(instruction,
+        instructionProtos atPut(instruction character, instruction)
     )
 )
 
@@ -163,7 +204,7 @@ Pack Unpacker := Object clone do(
         byteIndex = byteIndex + 1
     )
 
-    unpackNullTerimatedString := method(
+    unpackNullTerminatedString := method(
         endIndex := bytes findSeq("\0", byteIndex)
         string := bytes exSlice(byteIndex, endIndex)
         byteIndex = endIndex + 1
@@ -228,45 +269,3 @@ Pack Unpacker := Object clone do(
     )
 )
 
-Pack Format := Object clone do(
-    instructions := nil
-
-    parse := method(format,
-        instructions = list()
-        instruction := nil
-        numbers := Sequence clone
-        format foreach(c,
-            if(c isDigit,
-                numbers append(c)
-            ,
-                if(numbers size != 0,
-                    instruction setCount(numbers asNumber)
-                    numbers empty
-                )
-
-                instruction = Instruction clone setName(c asCharacter)
-                instructions append(instruction)
-            )
-        )
-
-        if(numbers size != 0,
-            instruction setCount(numbers asNumber)
-            numbers empty
-        )
-
-        self
-    )
-
-    Instruction := Object clone do(
-        name ::= nil
-        count ::= 1
-
-        asString := method(
-            if(count != nil,
-                name .. count
-            ,
-                name
-            )
-        )
-    )
-)

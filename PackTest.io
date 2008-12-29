@@ -13,6 +13,7 @@ PackTest := UnitTest clone do(
     testNullByte := method(
         assertEquals("\0\0\0", Pack pack("xxx"))
         assertEquals("\0\0\0", Pack pack("x3"))
+        assertEquals("\0\0a\0", Pack pack("x2p", "a"))
     )
 
     testSpacePaddedString := method(
@@ -22,7 +23,7 @@ PackTest := UnitTest clone do(
         assertEquals("a  ", Pack pack("A3", "a"))
     )
 
-    testSpacePaddedString := method(
+    testNullPaddedString := method(
         assertEquals("a", Pack pack("a", "a"))
         assertEquals("a", Pack pack("a1", "a"))
         assertEquals("a\0", Pack pack("a2", "a"))
