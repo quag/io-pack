@@ -174,7 +174,7 @@ Pack Packer := Object clone do(
         offset := 7
         byte := 0
 
-        bitString foreach(bitCharacter,
+        bitString exSlice(0, bitCount) foreach(bitCharacter,
             if(bitCharacter == "1" at(0),
                 byte = byte + (1 << offset)
             )
