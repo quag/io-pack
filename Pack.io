@@ -126,14 +126,14 @@ Pack Format := Object clone do(
     )
 
     list(
-        Instruction clone setCharacter("p") setNames("NullTerminatedString"),
         Instruction clone setCharacter("A") setNames("SpacePaddedString") setUsesCount(true),
         Instruction clone setCharacter("a") setNames("NullPaddedString") setUsesCount(true),
         Instruction clone setCharacter("B") setNames("DecendingBitString") setUsesCount(true),
         Instruction clone setCharacter("b") setNames("AscendingBitString") setUsesCount(true),
         Instruction clone setCharacter("C") setNames("UnsignedByte"),
         Instruction clone setCharacter("c") setNames("SignedByte"),
-        Instruction clone setCharacter("x") setAppendName("appendNullByte") setUnpackName("skipByte") setHasValue(false)
+        Instruction clone setCharacter("x") setAppendName("appendNullByte") setUnpackName("skipByte") setHasValue(false),
+        Instruction clone setCharacter("Z") setNames("NullTerminatedString")
     ) foreach(instruction,
         instructionProtos atPut(instruction character, instruction)
     )
