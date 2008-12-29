@@ -152,11 +152,15 @@ Pack Packer := Object clone do(
     )
 
     appendSpacePaddedString := method(string, width,
-        bytes appendSeq(string alignLeft(width))
+        appendPaddedString(string, width, " ")
     )
 
     appendNullPaddedString := method(string, width,
-        bytes appendSeq(string alignLeft(width, "\0"))
+        appendPaddedString(string, width, "\0")
+    )
+
+    appendPaddedString := method(string, width, padding,
+        bytes appendSeq(string exSlice(0, width) alignLeft(width, padding))
     )
 
     appendNullByte := method(
@@ -238,19 +242,21 @@ Pack Unpacker := Object clone do(
     )
 
     unpackSpacePaddedString := method(width,
-        string := bytes exSlice(byteIndex, byteIndex + width)
-        byteIndex = byteIndex + width
-        string asMutable rstrip
+        unpackPaddedString(width, " ")
     )
 
     unpackNullPaddedString := method(width,
+        unpackPaddedString(width, "\0")
+    )
+
+    unpackPaddedString := method(width, padding,
         string := bytes exSlice(byteIndex, byteIndex + width)
         byteIndex = byteIndex + width
 
         string = string asMutable
         loop(
             size := string size
-            string removeSuffix("\0")
+            string removeSuffix(padding)
 
             if(size == string size,
                 break
