@@ -130,6 +130,7 @@ Pack Format := Object clone do(
         Instruction clone setCharacter("A") setNames("SpacePaddedString") setUsesCount(true),
         Instruction clone setCharacter("a") setNames("NullPaddedString") setUsesCount(true),
         Instruction clone setCharacter("B") setNames("DecendingBitString") setUsesCount(true),
+        Instruction clone setCharacter("b") setNames("AscendingBitString") setUsesCount(true),
         Instruction clone setCharacter("C") setNames("UnsignedByte"),
         Instruction clone setCharacter("c") setNames("SignedByte"),
         Instruction clone setCharacter("x") setAppendName("appendNullByte") setUnpackName("skipByte") setHasValue(false)
@@ -191,6 +192,31 @@ Pack Packer := Object clone do(
         )
 
         if(offset != 7,
+            appendUnsignedByte(byte)
+        )
+    )
+
+    appendAscendingBitString := method(bitString, bitCount,
+        byte := 0
+        offset := 0
+
+        bitString exSlice(0, bitCount) foreach(bitCharacter,
+            if(bitCharacter == "1" at(0),
+                byte = byte + (1 << offset)
+            )
+
+            if(bitCharacter == "1" at(0) or bitCharacter == "0" at(0),
+                offset = offset + 1
+
+                if(offset == 8,
+                    appendUnsignedByte(byte)
+                    offset = 0
+                    byte = 0
+                )
+            )
+        )
+
+        if(offset != 0,
             appendUnsignedByte(byte)
         )
     )
@@ -263,6 +289,25 @@ Pack Unpacker := Object clone do(
 
             bitString appendSeq(if((byte & (1 << offset)) != 0, "1", "0"))
             offset = offset - 1
+        )
+
+        bitString asString
+    )
+
+    unpackAscendingBitString := method(bitCount,
+        bitString := Sequence clone
+
+        offset := 8
+        byte := nil
+
+        bitCount repeat(
+            if(offset == 8,
+                byte = unpackUnsignedByte
+                offset = 0
+            )
+
+            bitString appendSeq(if((byte & (1 << offset)) != 0, "1", "0"))
+            offset = offset + 1
         )
 
         bitString asString

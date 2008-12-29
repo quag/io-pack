@@ -45,4 +45,11 @@ UnpackTest := UnitTest clone do(
         assertEquals(list("001100110"), Pack unpack("B9", "3\0"))
         assertEquals(list("0110000101100010"), Pack unpack("B16", "ab"))
     )
+
+    testAscendingBits := method(
+        assertEquals(list("0101"), Pack unpack("b4", "\n"))
+        assertEquals(list("10000110"), Pack unpack("b8", "a"))
+        assertEquals(list("111111001"), Pack unpack("b9", Pack pack("B8B8", "00111111", "00000001")))
+        assertEquals(list("1000011001000110"), Pack unpack("b16", "ab"))
+    )
 )
