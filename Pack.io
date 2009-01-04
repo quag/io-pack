@@ -42,16 +42,20 @@ Pack Format := Object clone do(
         instruction := nil
         numbers := Sequence clone
         format foreach(c,
-            if(c isDigit,
-                numbers append(c)
+            if(c == "*" at(0),
+                instruction setCount("*")
             ,
-                if(numbers size != 0,
-                    instruction setCount(numbers asNumber)
-                    numbers empty
-                )
+                if(c isDigit,
+                    numbers append(c)
+                ,
+                    if(numbers size != 0,
+                        instruction setCount(numbers asNumber)
+                        numbers empty
+                    )
 
-                instruction = instructionProtos at(c asCharacter) clone
-                instructions append(instruction)
+                    instruction = instructionProtos at(c asCharacter) clone
+                    instructions append(instruction)
+                )
             )
         )
 
@@ -160,6 +164,9 @@ Pack Packer := Object clone do(
     )
 
     appendPaddedString := method(string, width, padding,
+        if(width == "*",
+            width = string size
+        )
         bytes appendSeq(string exSlice(0, width) alignLeft(width, padding))
     )
 

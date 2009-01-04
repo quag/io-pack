@@ -49,6 +49,10 @@ describe(packSpacePadded, "Packing space padded strings",
     packSpacePadded("should pad empty strings out to the width",
         Pack pack("A4", "") verify(== "    ")
     )
+
+    packSpacePadded("should use * to mean as wide as is needed",
+        Pack pack("A*", "abcd") verify(== "abcd")
+    )
 )
 
 describe(packNullPadded, "Packing null padded strings",
@@ -67,6 +71,10 @@ describe(packNullPadded, "Packing null padded strings",
 
     packNullPadded("should pad empty strings out to the width",
         Pack pack("a4", "") verify(== "\0\0\0\0")
+    )
+
+    packNullPadded("should use * to mean as wide as is needed",
+        Pack pack("a*", "abcd") verify(== "abcd")
     )
 )
 
